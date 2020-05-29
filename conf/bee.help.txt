@@ -1,0 +1,117 @@
+Bee is a Fast and Flexible tool for managing your Beego Web Application.
+
+USAGE
+    bee command [arguments]
+
+AVAILABLE COMMANDS
+
+    version     Prints the current Bee version
+    migrate     Runs database migrations
+    api         Creates a Beego API application
+    bale        Transforms non-Go files to Go source files
+    fix         Fixes your application by making it compatible with newer versions of Beego
+    dlv         Start a debugging session using Delve
+    dockerize   Generates a Dockerfile for your Beego application
+    generate    Source code generator
+    hprose      Creates an RPC application based on Hprose and Beego frameworks
+    new         Creates a Beego application
+    pack        Compresses a Beego application into a single file
+    rs          Run customized scripts
+    run         Run the application by starting a local development server
+    server      serving static content over HTTP on port
+
+Use bee help [command] for more information about a command.
+
+=========== bee generate ====================
+
+USAGE
+  bee generate [command]
+
+OPTIONS
+  -conn
+      Connection string used by the SQLDriver to connect to a database instance.
+
+  -ddl
+      Generate DDL Migration
+
+  -driver
+      Database SQLDriver. Either mysql, postgres or sqlite.
+
+  -fields
+      List of table Fields.
+
+  -level
+      Either 1, 2 or 3. i.e. 1=models; 2=models and controllers; 3=models, controllers and routers.
+
+  -tables
+      List of table names separated by a comma.
+
+DESCRIPTION
+  ▶ To scaffold out your entire application:
+
+     $ bee generate scaffold [scaffoldname] [-fields="title:string,body:text"] [-driver=mysql] [-conn="root:@tcp(127.0.0.1:3306)/test"]
+
+  ▶ To generate a Model based on fields:
+
+     $ bee generate model [modelname] [-fields="name:type"]
+
+  ▶ To generate a controller:
+
+     $ bee generate controller [controllerfile]
+
+  ▶ To generate a CRUD view:
+
+     $ bee generate view [viewpath]
+
+  ▶ To generate a migration file for making database schema updates:
+
+     $ bee generate migration [migrationfile] [-fields="name:type"]
+
+  ▶ To generate swagger doc file:
+
+     $ bee generate docs
+
+  ▶ To generate a test case:
+
+     $ bee generate test [routerfile]
+
+  ▶ To generate appcode based on an existing database:
+
+     $ bee generate appcode [-tables=""] [-driver=mysql] [-conn="root:@tcp(127.0.0.1:3306)/test"] [-level=3]
+
+=========== bee run ====================
+
+USAGE
+  bee run [appname] [watchall] [-main=*.go] [-downdoc=true]  [-gendoc=true] [-vendor=true] [-e=folderToExclude] [-ex=extraPackageToWatch] [-tags=goBuildTags] [-runmode=BEEGO_RUNMODE]
+
+OPTIONS
+  -downdoc
+      Enable auto-download of the swagger file if it does not exist.
+
+  -e=[]
+      List of paths to exclude.
+
+  -ex=[]
+      List of extra package to watch.
+
+  -gendoc
+      Enable auto-generate the docs.
+
+  -main=[]
+      Specify main go files.
+
+  -runargs
+      Extra args to run application
+
+  -runmode
+      Set the Beego run mode.
+
+  -tags
+      Set the build tags. See: https://golang.org/pkg/go/build/
+
+  -vendor=false
+      Enable watch vendor folder.
+
+DESCRIPTION
+  Run command will supervise the filesystem of the application for any changes, and recompile/restart it.
+
