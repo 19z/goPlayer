@@ -1,8 +1,10 @@
 package models
 
 import (
+	"errors"
 	"github.com/astaxie/beego/orm"
 	"goPlayer/models/drivers"
+	"os"
 	"time"
 )
 
@@ -15,7 +17,7 @@ type Member struct {
 }
 
 type Driver struct {
-	Id          int       `orm:"pk"`
+	Id          int       `orm:"pk;auto"`
 	Name        string    `orm:"unique"`
 	Path        string    `orm:"size(255)"`
 	Username    string    `orm:"null;size(1000)"`
@@ -30,6 +32,20 @@ type Driver struct {
 func (d *Driver) GetDriver() drivers.BaseDriver {
 	if d.DriverType == "local" {
 		return drivers.LocalDriver{Id: d.Id, Path: d.Path}
+	}
+	return nil
+}
+
+func (d *Driver) CheckData() error {
+	if d.DriverType != "local" {
+		return errors.New("only local can use");
+	}
+	stat, err := os.Stat(d.Path);
+	if err != nil {
+		return err;
+	}
+	if !stat.IsDir() {
+		return errors.New("only directory can use")
 	}
 	return nil
 }

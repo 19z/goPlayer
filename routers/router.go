@@ -1,13 +1,13 @@
 package routers
 
 import (
-	"github.com/astaxie/beego"
 	"goPlayer/controllers"
-	_ "goPlayer/models"
+	"github.com/astaxie/beego"
 )
 
 func init() {
-	beego.Router("/", &controllers.MainController{})
+    beego.Router("/", &controllers.MainController{})
 	beego.Router("/driver", &controllers.DriverController{})
-	beego.Router("/files/:id([0-9]+)/:splat(.+)", &controllers.FilesController{})
+	beego.Router("/files/*", &controllers.FilesController{})
+    beego.Router("/video/*", &controllers.VideoController{})
 }
