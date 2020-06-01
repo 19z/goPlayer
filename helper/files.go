@@ -13,6 +13,10 @@ func Dirname(filepath string) string {
 	return path.Dir(strings.TrimRight(strings.ReplaceAll(filepath, "\\", "/"), "/"))
 }
 
+func Basename(filepath string) string {
+	return path.Base(strings.TrimRight(strings.ReplaceAll(filepath, "\\", "/"), "/"))
+}
+
 func PathJoin(elem ...string) string {
 	return path.Join(elem...)
 }
@@ -44,23 +48,23 @@ func SplatUrl(url string) (*int, string, error) {
 func FileSizeFormat(size int64) string {
 	f := "BKMGT"
 	v := float64(size)
-	i := 0;
+	i := 0
 	for v > 1024 {
 		i++
 		v = v / 1024.0
 	}
-	return fmt.Sprintf("%.2f", v) + " " + f[i:i+1];
+	return fmt.Sprintf("%.2f", v) + " " + f[i:i+1]
 }
 
 func TimeFormat(t time.Time) string {
 	now := time.Now()
 	i := now.Unix() - t.Unix()
-	before := i < 0;
+	before := i < 0
 	if before {
 		i = -i
 	}
 	if i < 60*1000 && !before {
-		return "刚刚";
+		return "刚刚"
 	} else if i < 60*1000 {
 		return ""
 	}

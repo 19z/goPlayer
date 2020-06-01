@@ -1,13 +1,14 @@
 package controllers
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"goPlayer/helper"
 	"goPlayer/models"
+	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 )
@@ -48,12 +49,12 @@ func (c *VideoController) Get() {
 
 	mode := c.GetString("mode")
 	if mode == "pic" {
-		c.GetThumbnail(fullPath)
+		c.GetThumbnail(fullPath, splat)
 		return
 	}
 
-	c.Data["Path"] = p;
-	c.Data["Splat"] = splat;
+	c.Data["Path"] = p
+	c.Data["Splat"] = splat
 	//c.Data["Url"] = beego.URLFor("FilesController.Get", ":splat", splat);
 	//c.Data["VideoMethod"] = beego.URLFor("VideoController.Get", ":splat", splat);
 	c.Data["Stat"] = stat
@@ -61,49 +62,67 @@ func (c *VideoController) Get() {
 	return
 }
 
-func (c *VideoController) _GetThumbnail(fullPath string) {
-	savePath := fullPath + ".jpg"
-	ffmpeg := helper.FindFFmpeg()
-	if ffmpeg == "" {
-		c.Abort("not ffmpeg")
+func (c *VideoController) GetThumbnail(fullPath string, splat string) {
+	basename := helper.Basename(fullPath)
+	dirname := helper.PathJoin(helper.TempDir(), splat)
+	savePath := helper.PathJoin(dirname, "thumbnail.jpg")
+	if helper.FileExist(savePath) {
+		c.Ctx.Output.Download(savePath, basename+"_thumbnail.jpg")
 		return
 	}
-	cmd := exec.Command(ffmpeg, "-i ", fullPath, "-y", "-f", "image2", "-ss", "10", savePath)
-	stdout, err := cmd.StdoutPipe();
-	if err != nil {
-		//获取输出对象，可以从该对象中读取输出结果
-		log.Fatal(err)
+	if !helper.FileExist(dirname) {
+		_ = helper.MakeDir(dirname)
 	}
-	defer stdout.Close()
-	if err := cmd.Start(); err != nil { // 运行命令
-		log.Fatal(err)
-	}
-	b, _ := ioutil.ReadAll(stdout)
-	println(string(b))
-	c.Ctx.WriteString(string(b))
-	err = cmd.Wait()
-	if err != nil {
-		log.Printf(err.Error())
-	}
-}
-
-func (c *VideoController) GetThumbnail(fullPath string) {
-	savePath := fullPath + ".jpg"
 	ffmpeg := helper.FindFFmpeg()
 	if ffmpeg == "" {
 		c.Abort("not ffmpeg")
 		return
 	}
 	println(savePath)
-	//cmd := exec.Command(ffmpeg, "-i ", fullPath, "-y", "-f", "image2", "-ss", "10", savePath)
-	cmd := exec.Command(ffmpeg)
-	stdout, err := cmd.StdoutPipe() //指向cmd命令的stdout
+	cmd := exec.Command(ffmpeg, "-hide_banner", "-i", fullPath, "-ss", "100", "-y", "-t", "0.001", "-f", "image2", savePath)
+	//cmd := exec.Command("C:\\MineProgram\\ffmpeg\\bin\\ffmpeg.exe", "-hide_banner")
+	stderr, _ := cmd.StderrPipe()
 	cmd.Start()
-	content, err := ioutil.ReadAll(stdout)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(string(content))
+	b, _ := ioutil.ReadAll(stderr)
+	println(string(b))
 
-	c.Ctx.WriteString(string(content))
+	if helper.FileExist(savePath) {
+		c.Ctx.Output.Download(savePath, basename+"_thumbnail.jpg")
+		return
+	} else {
+		c.Ctx.WriteString(string(b))
+	}
+}
+
+func printCmd(cmd *exec.Cmd) {
+	stderr, _ := cmd.StderrPipe()
+	cmd.Start()
+	b, err := ioutil.ReadAll(stderr)
+	if err != nil {
+		println(err.Error())
+		return
+	}
+	println(string(b))
+	scanner := bufio.NewScanner(stderr)
+	scanner.Split(bufio.ScanWords)
+	for scanner.Scan() {
+		m := scanner.Text()
+		fmt.Println(m)
+	}
+	cmd.Wait()
+}
+func readFile(file io.Reader) {
+	tempSize := 10
+	buffer := make([]byte, tempSize)
+
+	for {
+		n, err := file.Read(buffer)
+		if err == io.EOF {
+			break
+		} else if n == tempSize {
+			print(string(buffer))
+		} else {
+			print(string(buffer[0:n]))
+		}
+	}
 }

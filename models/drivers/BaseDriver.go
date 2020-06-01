@@ -2,6 +2,7 @@ package drivers
 
 import (
 	"github.com/astaxie/beego/context"
+	"goPlayer/helper"
 	"path"
 	"time"
 )
@@ -11,7 +12,7 @@ type FileItem struct {
 	Directory   string
 	Name        string
 	Size        int64
-	ModTime       time.Time
+	ModTime     time.Time
 	MimeType    string
 	Children    *[]FileItem
 	driver      BaseDriver
@@ -34,6 +35,10 @@ func (c FileItem) GetPreviewUrl() string {
 		return c.driver.GetPreviewUrl(c)
 	}
 	return ""
+}
+
+func (c FileItem) IsVideo() bool {
+	return helper.IsVideo(c.Name)
 }
 
 func (c FileItem) GetDownloadUrl() string {

@@ -38,7 +38,12 @@
                     {{range $i, $file := .Files}}
                         {{if not .IsDirectory}}
                             <tr>
-                                <td class="filename" data-href="{{$file.GetPreviewUrl}}">{{$file.Name}}</td>
+                                <td class="filename" data-href="{{$file.GetPreviewUrl}}">
+                                    {{if $file.IsVideo}}
+                                        <img width="30px" src="{{$file.GetPreviewUrl}}?mode=pic" alt="">
+                                    {{end}}
+                                    {{$file.Name}}
+                                </td>
                                 <td>{{$file.Size|FileSizeFormat}}</td>
                                 <td>{{$file.ModTime|TimeFormat}}</td>
                             </tr>

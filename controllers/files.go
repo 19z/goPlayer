@@ -6,6 +6,10 @@ import (
 	"goPlayer/helper"
 	"goPlayer/models"
 	"goPlayer/models/drivers"
+	"io"
+	"os"
+	"strconv"
+	"strings"
 )
 
 type FilesController struct {
@@ -64,5 +68,56 @@ func (c *FilesController) Get() {
 		c.TplName = "files/index.tpl"
 	} else {
 		fileItem.SendFile(c.Ctx)
+	}
+}
+
+func renderFile(c *VideoController, fullPath string, stat os.FileInfo) {
+	mode := c.GetString("mode")
+	file, err3 := os.OpenFile(fullPath, os.O_RDONLY, 06660)
+	fileExt := helper.ArrayEnd(strings.Split(stat.Name(), "."))
+	if err3 != nil {
+		c.Abort(err3.Error())
+		return
+	}
+	defer file.Close()
+	size := strconv.FormatInt(stat.Size(), 10)
+	sizeLess1 := strconv.FormatInt(stat.Size()-1, 10)
+	// 区域下载
+	getRange := c.Ctx.Input.Header("Range")
+	if getRange != "" && strings.HasPrefix(getRange, "bytes=") {
+		start, err4 := strconv.ParseInt(strings.Split(getRange[len("bytes="):], "-")[0], 10, 64)
+		if err4 == nil {
+			var err5 error = nil
+			if start > 0 {
+				_, err5 = file.Seek(start, 0)
+				if err5 == nil {
+					//c.Ctx.Output.SetStatus(206)
+					c.Ctx.Output.Header("Content-Range", "bytes "+strconv.FormatInt(start, 10)+"-"+sizeLess1+"/"+size)
+				}
+			}
+		}
+	}
+	if mode == "download" {
+		c.Ctx.Output.Header("Content-Disposition", "form-data; name=\"attachment\"; filename=\""+stat.Name()+"\"")
+	}
+	c.Ctx.Output.ContentType(fileExt)
+	c.Ctx.Output.Header("Content-Length", size)
+	c.Ctx.Output.Header("Accept-Ranges", "bytes")
+	if c.Ctx.ResponseWriter.Header().Get("Content-Range") != "" {
+		//c.Ctx.Output.Header("Content-Type", "application/octet-stream")
+		c.Ctx.ResponseWriter.WriteHeader(206)
+	}
+	tempSize := 1024
+	buffer := make([]byte, tempSize)
+
+	for {
+		n, err := file.Read(buffer)
+		if err == io.EOF {
+			break
+		} else if n == tempSize {
+			_, _ = c.Ctx.ResponseWriter.Write(buffer)
+		} else {
+			_, _ = c.Ctx.ResponseWriter.Write(buffer[0:n])
+		}
 	}
 }
