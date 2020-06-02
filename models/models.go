@@ -5,6 +5,7 @@ import (
 	"github.com/astaxie/beego/orm"
 	"goPlayer/models/drivers"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -38,11 +39,12 @@ func (d *Driver) GetDriver() drivers.BaseDriver {
 
 func (d *Driver) CheckData() error {
 	if d.DriverType != "local" {
-		return errors.New("only local can use");
+		return errors.New("only local can use now")
 	}
-	stat, err := os.Stat(d.Path);
+	d.Path = strings.ReplaceAll(d.Path, "\\", "/")
+	stat, err := os.Stat(d.Path)
 	if err != nil {
-		return err;
+		return err
 	}
 	if !stat.IsDir() {
 		return errors.New("only directory can use")

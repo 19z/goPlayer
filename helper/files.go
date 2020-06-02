@@ -38,7 +38,9 @@ func SplatUrl(url string) (*int, string, error) {
 	splatList := strings.Split(url, "/")
 	driverId, err := strconv.Atoi(splatList[0])
 	splat := strings.Join(ArrayFilter(splatList[1:]), "/")
-
+	if splat == "~" {
+		splat = ""
+	}
 	if err != nil {
 		return nil, splat, err
 	}

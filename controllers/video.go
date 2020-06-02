@@ -6,6 +6,7 @@ import (
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"goPlayer/helper"
+	"goPlayer/helper/ffmpeg"
 	"goPlayer/models"
 	"io"
 	"io/ioutil"
@@ -64,7 +65,7 @@ func (c *VideoController) Get() {
 
 func (c *VideoController) GetThumbnail(fullPath string, splat string) {
 	basename := helper.Basename(fullPath)
-	dirname := helper.PathJoin(helper.TempDir(), splat)
+	dirname := helper.PathJoin(helper.SystemInfo.TempDir, splat)
 	savePath := helper.PathJoin(dirname, "thumbnail.jpg")
 	if helper.FileExist(savePath) {
 		c.Ctx.Output.Download(savePath, basename+"_thumbnail.jpg")
@@ -73,24 +74,17 @@ func (c *VideoController) GetThumbnail(fullPath string, splat string) {
 	if !helper.FileExist(dirname) {
 		_ = helper.MakeDir(dirname)
 	}
-	ffmpeg := helper.FindFFmpeg()
-	if ffmpeg == "" {
-		c.Abort("not ffmpeg")
+	ff, err := ffmpeg.FFmpegsNew(fullPath, dirname)
+	if err != nil {
+		c.Abort(err.Error())
 		return
 	}
-	println(savePath)
-	cmd := exec.Command(ffmpeg, "-hide_banner", "-i", fullPath, "-ss", "100", "-y", "-t", "0.001", "-f", "image2", savePath)
-	//cmd := exec.Command("C:\\MineProgram\\ffmpeg\\bin\\ffmpeg.exe", "-hide_banner")
-	stderr, _ := cmd.StderrPipe()
-	cmd.Start()
-	b, _ := ioutil.ReadAll(stderr)
-	println(string(b))
-
+	savePath, err = ff.GetThumbnail()
 	if helper.FileExist(savePath) {
 		c.Ctx.Output.Download(savePath, basename+"_thumbnail.jpg")
 		return
 	} else {
-		c.Ctx.WriteString(string(b))
+		c.Abort(err.Error())
 	}
 }
 

@@ -17,7 +17,7 @@ func init() {
 }
 
 func main() {
-	if len(os.Args) > 1 {
+	if len(os.Args) > 1 && os.Args[1] == "orm" {
 		// go run main.go orm
 		//go run main.go orm syncdb  --force
 		orm.RunCommand()
