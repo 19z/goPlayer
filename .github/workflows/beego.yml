@@ -14,12 +14,11 @@ jobs:
           go-version: ^1.13
         id: go
 
+      - name: install beego
+        run: go get github.com/beego/bee
+
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
 
-      - name: install beego
-        run: |
-          rm go.mod
-          rm go.sum
-          go get github.com/beego/bee
-          bee pack
+      - name: build
+        run: bee pack
