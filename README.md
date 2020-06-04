@@ -1,5 +1,5 @@
 
-![Build](https://github.com/19z/goPlayer/workflows/build/badge.svg)
+![Build](https://github.com/19z/goPlayer/workflows/Build/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/19z/goPlayer)](https://goreportcard.com/report/github.com/19z/goPlayer)
 
 
