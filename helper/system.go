@@ -96,7 +96,7 @@ func downloadFFmpeg() (string, error) {
 					defer inFile.Close()
 					if outFile, err := os.OpenFile(defaultFileDir+"/"+fname, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777); err == nil {
 						defer outFile.Close()
-						_, err = io.Copy(outFile, inFile)
+						_, _ = io.Copy(outFile, inFile)
 						break
 					}
 				}

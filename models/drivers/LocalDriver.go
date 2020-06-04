@@ -32,7 +32,7 @@ func (d LocalDriver) DirList(p string) []FileItem {
 			Name:        file.Name(),
 			Size:        file.Size(),
 			MimeType:    "",
-			ModTime:       file.ModTime(),
+			ModTime:     file.ModTime(),
 			driver:      d,
 		}
 		if !item.IsDirectory {

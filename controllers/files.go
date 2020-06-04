@@ -87,9 +87,8 @@ func renderFile(c *VideoController, fullPath string, stat os.FileInfo) {
 	if getRange != "" && strings.HasPrefix(getRange, "bytes=") {
 		start, err4 := strconv.ParseInt(strings.Split(getRange[len("bytes="):], "-")[0], 10, 64)
 		if err4 == nil {
-			var err5 error = nil
 			if start > 0 {
-				_, err5 = file.Seek(start, 0)
+				_, err5 := file.Seek(start, 0)
 				if err5 == nil {
 					//c.Ctx.Output.SetStatus(206)
 					c.Ctx.Output.Header("Content-Range", "bytes "+strconv.FormatInt(start, 10)+"-"+sizeLess1+"/"+size)
